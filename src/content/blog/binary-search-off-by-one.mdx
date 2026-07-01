@@ -1,0 +1,33 @@
+---
+title: "Binary search: the off-by-one that cost me three hours"
+description: "Why lo <= hi isn't a convention — tracing the exact moment my search space collapsed wrong."
+category: "dsa"
+pubDate: 2026-06-24
+readingTime: "6 min read"
+tags: ["leetcode", "binary-search", "dsa"]
+---
+
+I was solving LeetCode 33 (Search in Rotated Sorted Array) and got stuck in an infinite loop. Here's the trace that finally showed me why.
+
+## The bug
+
+My loop condition was `lo < hi` instead of `lo <= hi`. That one character meant the search space could collapse to a single element and the loop would just... stop checking it.
+
+```python
+def search(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:  # this was `<` before — the fix
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        # ...
+    return -1
+```
+
+## Why it matters
+
+`lo <= hi` guarantees that when `lo == hi`, we still check that final candidate. Drop the `=` and you silently skip the last element in your search space — which is exactly the kind of bug that only shows up on edge-case inputs.
+
+## Takeaway
+
+Whenever I write a binary search now, I ask: *does my loop condition include the case where the search space has exactly one element left?* If not, that's the bug waiting to happen.

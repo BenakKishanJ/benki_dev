@@ -1,0 +1,24 @@
+---
+interface Props {
+  active?: 'posts' | 'about';
+}
+const { active } = Astro.props;
+---
+<header class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="/">
+      <span class="mark">
+        <svg width="16" height="16" viewBox="0 0 26 26" fill="none">
+          <path d="M13 2C16 7 19 10 16.5 15.5C15.3 18 10.7 18 9.5 15.5C7.7 11.7 9.5 8 11.5 5.5C12 7 12 8.5 13 7.5C13.8 6.7 13 4 13 2Z" fill="#fff"/>
+        </svg>
+      </span>
+      BenKi<span class="dot">.dev</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/blog" class={active === 'posts' ? 'active' : ''}>Posts</a>
+      <a href="/projects">Projects</a>
+      <a href="/about" class={active === 'about' ? 'active' : ''}>About</a>
+    </nav>
+    <a class="nav-cta" href="/blog">$ explore_blog</a>
+  </div>
+</header>

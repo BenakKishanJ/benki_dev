@@ -1,0 +1,223 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Terminal from '../components/Terminal.astro';
+
+// ─── ADD / EDIT YOUR PROJECTS HERE ────────────────────────────────────────────
+// Each project object becomes a card on the page.
+// Fields:
+//   title       – project name
+//   description – one-liner shown on the card
+//   longDesc    – two-line detail shown in the card body
+//   status      – 'live' | 'wip' | 'archived'
+//   tags        – array of tech labels (shown as chips)
+//   color       – accent colour for the card glow / dot (use any CSS colour)
+//   github      – URL string, or null to hide the button
+//   demo        – URL string, or null to hide the button
+// ──────────────────────────────────────────────────────────────────────────────
+const projects = [
+  {
+    title: "Kirana Sync",
+    description: "Offline-first inventory app for corner stores built on Android + Room.",
+    longDesc: "13 Room entities, delta-based sync, and conflict resolution that survives flaky 2G. Built for real kirana owners — owner + employee multi-device support included.",
+    status: "wip",
+    tags: ["Kotlin", "Android", "Room", "PostgreSQL"],
+    color: "var(--orange)",
+    github: "https://github.com",
+    demo: null,
+  },
+  {
+    title: "BenKi.dev",
+    description: "This site — a dev blog built with Astro, MDX, and zero JS frameworks.",
+    longDesc: "Static-first blog with a custom terminal component, tilt/magnetic animations, and a five-colour design system. Fast by default, fun on purpose.",
+    status: "live",
+    tags: ["Astro", "MDX", "TypeScript", "CSS"],
+    color: "var(--purple)",
+    github: "https://github.com",
+    demo: "https://benki.dev",
+  },
+  {
+    title: "LeetLog",
+    description: "Personal CLI to log and query LeetCode solves from the terminal.",
+    longDesc: "Saves problem slug, difficulty, pattern, and notes to a local SQLite file. `leetlog stats` prints a weekly heatmap and pattern breakdown straight to stdout.",
+    status: "wip",
+    tags: ["Python", "SQLite", "Click", "Rich"],
+    color: "var(--blue)",
+    github: "https://github.com",
+    demo: null,
+  },
+  {
+    title: "DSA Flashcards",
+    description: "Spaced-repetition flashcard app focused on algorithm patterns.",
+    longDesc: "SM-2 scheduling, category filtering, and a minimal dark UI. No backend — runs fully in the browser with localStorage. Covers arrays, trees, graphs, and DP.",
+    status: "archived",
+    tags: ["React", "TypeScript", "Vite"],
+    color: "var(--lime)",
+    github: "https://github.com",
+    demo: null,
+  },
+];
+
+// status label config — no need to edit this
+const statusConfig: Record<string, { label: string; color: string }> = {
+  live:     { label: "Live",     color: "var(--lime)" },
+  wip:      { label: "WIP",      color: "var(--yellow)" },
+  archived: { label: "Archived", color: "var(--muted)" },
+};
+---
+<Layout title="Projects" active="projects">
+  <!-- ── Hero ── -->
+  <section class="dark hero">
+    <div class="blob" style="width:360px;height:360px;top:-110px;left:-100px;background:var(--orange);"></div>
+    <div class="blob" style="width:300px;height:300px;top:0;right:-80px;background:var(--purple);animation-delay:-5s;"></div>
+    <div class="eyebrow">Projects</div>
+    <h1 class="reveal in">
+      Things I've actually <span class="gradient-text">shipped</span><br />
+      (and a few I'm still breaking).
+    </h1>
+    <p class="lede reveal in muted">
+      Side projects, weekend experiments, and tools I built because something annoyed me.
+      Source is public where I'm not embarrassed by it yet.
+    </p>
+
+    <Terminal title="ls ~/projects" class="hero-terminal reveal in">
+      <div class="line">
+        <span class="terminal-prompt">benki@dev</span>
+        <span class="terminal-path"> ~/projects</span>
+        <span> $ ls -la</span>
+      </div>
+      <div class="line">&nbsp;</div>
+      {projects.map((p) => (
+        <div class="line">
+          <span style={`color:${p.color};min-width:130px;display:inline-block`}>{p.title.toLowerCase().replace(/ /g,'-')}/</span>
+          <span class="terminal-comment">  # {p.description}</span>
+        </div>
+      ))}
+    </Terminal>
+  </section>
+
+  <!-- ── Filter bar ── -->
+  <div class="dark filter-bar reveal in">
+    <button class="filter-pill active" data-filter="all"><span class="dot" style="background:#F5F3FA"></span> All</button>
+    <button class="filter-pill" data-filter="live"    style="--c:var(--lime)">  <span class="dot" style="background:var(--lime)"></span>   Live</button>
+    <button class="filter-pill" data-filter="wip"     style="--c:var(--yellow)"><span class="dot" style="background:var(--yellow)"></span> WIP</button>
+    <button class="filter-pill" data-filter="archived" style="--c:var(--muted)"><span class="dot" style="background:var(--muted)"></span> Archived</button>
+  </div>
+
+  <!-- ── Project cards ── -->
+  <section class="dark cards-section">
+    <div class="cards-grid" id="projectGrid">
+      {projects.map((p, i) => {
+        const sc = statusConfig[p.status];
+        return (
+          <div class="proj-card tilt reveal scale" data-status={p.status} style={`--c:${p.color};transition-delay:${i * 70}ms`}>
+            <!-- coloured top bar -->
+            <div class="card-bar" style={`background:${p.color}`}></div>
+
+            <div class="card-inner">
+              <div class="card-top">
+                <div class="card-icon" style={`background:color-mix(in srgb,${p.color} 18%,transparent);border-color:color-mix(in srgb,${p.color} 35%,transparent)`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={p.color} stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                  </svg>
+                </div>
+                <span class="status-pill" style={`color:${sc.color};border-color:color-mix(in srgb,${sc.color} 40%,transparent);background:color-mix(in srgb,${sc.color} 10%,transparent)`}>
+                  <span class="status-dot" style={`background:${sc.color}`}></span>
+                  {sc.label}
+                </span>
+              </div>
+
+              <h3>{p.title}</h3>
+              <p class="card-desc muted">{p.longDesc}</p>
+
+              <div class="tag-row">
+                {p.tags.map((t) => <span class="tag">{t}</span>)}
+              </div>
+
+              <div class="card-actions">
+                {p.github && (
+                  <a href={p.github} target="_blank" rel="noopener" class="card-btn card-btn-ghost magnetic">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    GitHub
+                  </a>
+                )}
+                {p.demo && (
+                  <a href={p.demo} target="_blank" rel="noopener" class="card-btn card-btn-primary magnetic" style={`background:${p.color};box-shadow:0 8px 24px color-mix(in srgb,${p.color} 40%,transparent)`}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Live demo
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ── Hero ── */
+  .hero { position: relative; max-width: 1140px; margin: 0 auto; padding: 90px 32px 56px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--orange-2); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 12px rgba(255,106,26,0.8); animation: blink 1.6s ease-in-out infinite; }
+  .hero h1 { font-size: 50px; font-weight: 800; line-height: 1.1; max-width: 700px; }
+  .lede { margin-top: 20px; font-size: 17px; max-width: 540px; line-height: 1.65; }
+  .hero-terminal { margin-top: 40px; max-width: 680px; }
+
+  /* ── Filter bar ── */
+  .filter-bar { max-width: 1140px; margin: 0 auto; padding: 0 32px 48px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .filter-pill { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color .2s, color .2s, transform .2s, box-shadow .2s; background: transparent; }
+  .filter-pill:hover { transform: translateY(-2px); }
+  .filter-pill.active { border-color: var(--c, var(--text)); color: var(--text); box-shadow: 0 0 0 1px var(--c, var(--text)) inset, 0 8px 20px color-mix(in srgb, var(--c, #fff) 25%, transparent); }
+  .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ── Cards ── */
+  .cards-section { max-width: 1140px; margin: 0 auto; padding: 0 32px 110px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+
+  .proj-card { background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color .3s ease, box-shadow .3s ease; }
+  .proj-card:hover { border-color: color-mix(in srgb, var(--c) 60%, transparent); box-shadow: 0 28px 60px -10px color-mix(in srgb, var(--c) 22%, transparent); }
+
+  .card-bar { height: 4px; width: 100%; }
+  .card-inner { padding: 26px; display: flex; flex-direction: column; gap: 16px; }
+
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-icon { width: 44px; height: 44px; border-radius: 12px; border: 1px solid; display: flex; align-items: center; justify-content: center; }
+
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+
+  .proj-card h3 { font-size: 22px; font-weight: 800; line-height: 1.2; }
+  .card-desc { font-size: 14.5px; line-height: 1.7; }
+
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; padding: 4px 11px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); }
+
+  .card-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .card-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, opacity .2s ease; }
+  .card-btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); }
+  .card-btn-ghost:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+  .card-btn-primary { color: #fff; border: none; }
+  .card-btn-primary:hover { transform: translateY(-3px) scale(1.04); opacity: 0.9; }
+
+  @media (max-width: 860px) { .cards-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .hero h1 { font-size: 32px; } }
+</style>
+
+<script>
+  // filter cards by status
+  const pills  = document.querySelectorAll('.filter-pill');
+  const cards  = document.querySelectorAll<HTMLElement>('#projectGrid .proj-card');
+
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      pills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+      const filter = (pill as HTMLElement).dataset.filter;
+      cards.forEach((card) => {
+        const match = filter === 'all' || card.dataset.status === filter;
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  });
+</script>

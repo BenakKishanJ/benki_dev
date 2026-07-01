@@ -1,0 +1,69 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Terminal from '../components/Terminal.astro';
+---
+<Layout title="About" active="about">
+  <section class="dark hero">
+    <div class="blob" style="width:380px;height:380px;top:-100px;right:-160px;background:var(--blue);"></div>
+    <div class="eyebrow">About</div>
+    <h1 class="reveal in">Recent grad, shipping solo, documenting <span class="gradient-text">what actually happened</span> — not the polished version.</h1>
+  </section>
+
+  <section class="dark story-section">
+    <div class="story-grid">
+      <div>
+        <h2 class="reveal">Why this site exists</h2>
+        <p class="reveal muted">I'm a recent CS grad working on personal projects while grinding leetcode and interview prep. Most engineering blogs read like the bug never happened — clean tutorials with no trace of the hours spent staring at the wrong stack frame. <strong>I write the messy part too:</strong> the wrong hypothesis, the off-by-one I missed twice, the log line that finally gave it away.</p>
+        <p class="reveal muted">This is also where I log my DSA practice and system design prep as I get ready for new-grad interviews — patterns I keep relearning, problems I got wrong the first time, and the reasoning that finally clicked.</p>
+      </div>
+      <Terminal title="whoami">
+        <div class="line"><span class="terminal-prompt">$</span> whoami</div>
+        <div class="line terminal-out">recent_grad.exe</div>
+        <div class="line">&nbsp;</div>
+        <div class="line"><span class="terminal-prompt">$</span> cat status.json</div>
+        <div class="line">{`{`}</div>
+        <div class="line">&nbsp;&nbsp;<span class="terminal-str">"role"</span>: <span class="terminal-str">"shipping solo"</span>,</div>
+        <div class="line">&nbsp;&nbsp;<span class="terminal-str">"grinding"</span>: <span class="terminal-str">"leetcode + system design"</span>,</div>
+        <div class="line">&nbsp;&nbsp;<span class="terminal-str">"coffee_level"</span>: <span class="terminal-kw">"critical"</span></div>
+        <div class="line">{`}`}</div>
+      </Terminal>
+    </div>
+  </section>
+
+  <section class="dark stack-section">
+    <h2 class="reveal">Tools I reach for</h2>
+    <div class="stack-grid reveal">
+      <span class="stack-chip" style="--c:var(--orange)">Python</span>
+      <span class="stack-chip" style="--c:var(--purple)">Kotlin</span>
+      <span class="stack-chip" style="--c:var(--blue)">React</span>
+      <span class="stack-chip" style="--c:var(--lime)">Next.js</span>
+      <span class="stack-chip" style="--c:var(--orange)">Astro</span>
+      <span class="stack-chip" style="--c:var(--purple)">PostgreSQL</span>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { position: relative; max-width: 1140px; margin: 0 auto; padding: 90px 32px 60px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--orange-2); margin-bottom: 16px; }
+  .hero h1 { font-size: 42px; font-weight: 800; line-height: 1.14; max-width: 760px; }
+
+  .story-section { max-width: 1140px; margin: 0 auto; padding: 70px 32px; }
+  .story-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: start; }
+  .story-section h2 { font-size: 28px; font-weight: 700; margin-bottom: 22px; }
+  .story-section p { font-size: 16px; line-height: 1.8; margin-bottom: 18px; }
+  .story-section p strong { color: var(--orange-2); font-weight: 700; }
+
+  .stack-section { max-width: 1140px; margin: 0 auto; padding: 20px 32px 100px; }
+  .stack-section h2 { font-size: 26px; font-weight: 700; margin-bottom: 26px; }
+  .stack-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+  .stack-chip { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; padding: 11px 20px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, border-color .25s ease; }
+  .stack-chip:hover { transform: translateY(-4px) scale(1.05); border-color: var(--c); box-shadow: 0 12px 28px color-mix(in srgb, var(--c) 35%, transparent); }
+
+  @media (max-width: 900px) {
+    .story-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .hero h1 { font-size: 28px; }
+  }
+</style>

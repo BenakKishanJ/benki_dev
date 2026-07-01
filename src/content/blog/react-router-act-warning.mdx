@@ -1,0 +1,35 @@
+---
+title: 'Fixing "act(...) wraps test-utils" in React Router v6'
+description: "The exact testing-library setup that makes this warning disappear, with the why behind it."
+category: "error-fix"
+pubDate: 2026-06-11
+readingTime: "4 min read"
+tags: ["react", "testing-library", "react-router"]
+draft: false
+---
+
+If you've upgraded to React Router v6 and started seeing this warning in your tests, it's almost always one missing wrapper.
+
+## The warning
+
+```
+Warning: An update to App inside a test was not wrapped in act(...).
+```
+
+## The cause
+
+React Router's navigation triggers state updates outside of the render you're directly testing, and `render()` from `@testing-library/react` doesn't automatically wrap router-driven updates in `act()`.
+
+## The fix
+
+Wrap renders that trigger navigation in `await act(async () => { ... })`, or — cleaner — use `findBy*` queries instead of `getBy*` right after a navigation, since they wait for the next tick:
+
+```jsx
+test("navigates to dashboard", async () => {
+  render(<App />, { wrapper: MemoryRouterWrapper });
+  fireEvent.click(screen.getByText("Login"));
+  expect(await screen.findByText("Dashboard")).toBeInTheDocument();
+});
+```
+
+That single change — swapping `getByText` for `await screen.findByText` after any action that triggers routing — made the warning disappear across the whole test suite.

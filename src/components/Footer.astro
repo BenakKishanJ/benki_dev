@@ -1,0 +1,16 @@
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="muted">© {new Date().getFullYear()} BenKi.dev — built with <span class="gradient-text" style="font-weight:700;">Astro</span></span>
+    <div class="footer-links">
+      <a href="/blog">Posts</a>
+      <a href="/about">About</a>
+      <a href="https://github.com/BenakKishanJ">GitHub</a>
+    </div>
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+  </div>
+</footer>
+
+<script>
+  const btn = document.getElementById('backToTop');
+  btn?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>

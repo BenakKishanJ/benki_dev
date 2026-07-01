@@ -1,0 +1,18 @@
+---
+interface Props {
+  title?: string;
+  class?: string;
+}
+const { title = "zsh — benki.dev", class: className = "" } = Astro.props;
+---
+<div class={`terminal reveal scale ${className}`}>
+  <div class="terminal-bar">
+    <span class="terminal-dot red"></span>
+    <span class="terminal-dot yellow"></span>
+    <span class="terminal-dot green"></span>
+    <span class="terminal-title">{title}</span>
+  </div>
+  <div class="terminal-body">
+    <slot />
+  </div>
+</div>

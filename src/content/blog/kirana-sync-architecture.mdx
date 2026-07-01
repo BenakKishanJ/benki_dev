@@ -1,0 +1,33 @@
+---
+title: "Sync architecture for an offline-first kirana app"
+description: "13 Room entities, one conflict resolution strategy, and why last-write-wins almost broke inventory."
+category: "system-design"
+pubDate: 2026-06-18
+readingTime: "9 min read"
+tags: ["android", "room", "offline-first", "sync"]
+---
+
+This is a build log from a side project: an inventory app for small kirana (corner) stores that needs to work reliably on flaky 2G connections.
+
+## The constraint
+
+Store owners update stock counts throughout the day, sometimes from two devices at once (owner + one employee). The app has to work fully offline and reconcile later.
+
+## Why last-write-wins almost broke things
+
+My first pass just took whichever update had the latest timestamp. That's fine for most fields, but for a quantity field like `stock_count`, two offline edits don't represent the *same fact* — they're each a delta. Last-write-wins silently threw away one of the changes.
+
+## The fix: store deltas, not absolutes
+
+Instead of syncing the final stock count, I sync the *change* (`+5`, `-2`) with a device id and timestamp. The server applies all deltas in causal order, so two simultaneous restocks both count.
+
+```kotlin
+data class StockDelta(
+    val productId: String,
+    val change: Int,
+    val deviceId: String,
+    val timestamp: Long
+)
+```
+
+This pattern (CRDT-adjacent, though I didn't go full CRDT) turned out to be the right level of complexity for a single-store app — simple enough to reason about, correct enough to trust.

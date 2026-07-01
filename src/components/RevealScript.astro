@@ -1,0 +1,33 @@
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('in'), i * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+  // magnetic hover on buttons / cards with .magnetic
+  document.querySelectorAll<HTMLElement>('.magnetic').forEach((el) => {
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e as MouseEvent).clientX - r.left - r.width / 2;
+      const y = (e as MouseEvent).clientY - r.top - r.height / 2;
+      el.style.transform = `translate(${x * 0.12}px, ${y * 0.12}px)`;
+    });
+    el.addEventListener('mouseleave', () => { el.style.transform = 'translate(0,0)'; });
+  });
+
+  // tilt effect on cards with .tilt
+  document.querySelectorAll<HTMLElement>('.tilt').forEach((el) => {
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      const px = ((e as MouseEvent).clientX - r.left) / r.width - 0.5;
+      const py = ((e as MouseEvent).clientY - r.top) / r.height - 0.5;
+      el.style.transform = `perspective(700px) rotateX(${py * -6}deg) rotateY(${px * 6}deg) translateY(-4px)`;
+    });
+    el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+  });
+</script>
