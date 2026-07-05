@@ -1,0 +1,247 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import ImageGallery from '../../components/ImageGallery.astro';
+import VideoEmbed from '../../components/VideoEmbed.astro';
+import Terminal from '../../components/Terminal.astro';
+import { projects, statusConfig, type Project, type Section } from '../../data/projects';
+
+export async function getStaticPaths() {
+  return projects.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const project  = projects.find((p) => p.slug === slug);
+
+if (!project) return Astro.redirect('/projects');
+
+const sc = statusConfig[project.status];
+
+// Related: same colour group (rough approximation), excluding self
+const related = projects.filter((p) => p.slug !== slug).slice(0, 2);
+---
+
+<Layout title={project.title} active="projects">
+
+  <!-- ── HERO ─────────────────────────────────────────────────────────────── -->
+  <section class="dark detail-hero">
+    <div class="blob" style={`width:400px;height:400px;top:-130px;left:-100px;background:${project.color};`}></div>
+    <div class="blob" style={`width:300px;height:300px;top:0;right:-60px;background:var(--purple);animation-delay:-6s;`}></div>
+
+    <div class="hero-inner">
+      <div class="hero-meta">
+        <a href="/projects" class="back-link">← All projects</a>
+        <span class="status-pill" style={`color:${sc.color};border-color:color-mix(in srgb,${sc.color} 40%,transparent);background:color-mix(in srgb,${sc.color} 10%,transparent)`}>
+          <span class="status-dot" style={`background:${sc.color}`}></span>
+          {sc.label}
+        </span>
+      </div>
+
+      <h1 class="reveal in">{project.title}</h1>
+      {project.heroTagline && <p class="tagline reveal in muted">{project.heroTagline}</p>}
+
+      <div class="tag-row reveal in">
+        {project.tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+
+      <!-- action buttons -->
+      <div class="hero-actions reveal in">
+        {project.github && (
+          <a href={project.github} target="_blank" rel="noopener" class="btn btn-ghost magnetic">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View source
+          </a>
+        )}
+        {project.demo && (
+          <a href={project.demo} target="_blank" rel="noopener" class="btn btn-primary magnetic" style={`background:${project.color};box-shadow:0 10px 30px color-mix(in srgb,${project.color} 40%,transparent)`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Live demo
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- sidebar quick-facts -->
+    <aside class="hero-facts reveal in">
+      {project.timeline && (
+        <div class="fact">
+          <span class="fact-label">Timeline</span>
+          <span>{project.timeline}</span>
+        </div>
+      )}
+      {project.role && (
+        <div class="fact">
+          <span class="fact-label">Role</span>
+          <span>{project.role}</span>
+        </div>
+      )}
+      <div class="fact">
+        <span class="fact-label">Stack</span>
+        <div class="fact-tags">
+          {project.tags.map((t) => <span class="tag small">{t}</span>)}
+        </div>
+      </div>
+      <div class="fact">
+        <span class="fact-label">Status</span>
+        <span style={`color:${sc.color}`}>{sc.label}</span>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ── PROGRESS BAR (reading / scroll indicator) ───────────────────────── -->
+  <div class="progress-bar" id="progressBar" style={`--c:${project.color}`}></div>
+
+  <!-- ── CONTENT SECTIONS ─────────────────────────────────────────────────── -->
+  <section class="dark content-wrap">
+    <div class="content-body">
+      {project.sections.map((section: Section, i: number) => {
+        if (section.type === 'text') return (
+          <p class="prose-text reveal" style={`transition-delay:${i * 40}ms`}>{section.content}</p>
+        );
+
+        if (section.type === 'heading') return (
+          <h2 class="prose-h2 reveal" style={`transition-delay:${i * 40}ms`}>
+            <span class="h2-hash">//</span> {section.content}
+          </h2>
+        );
+
+        if (section.type === 'code') return (
+          <CodeBlock
+            code={section.code}
+            lang={section.lang}
+            filename={section.filename}
+            class="content-block"
+          />
+        );
+
+        if (section.type === 'image') return (
+          <figure class="prose-figure reveal scale" style={`transition-delay:${i * 40}ms`}>
+            <img src={section.src} alt={section.alt} loading="lazy" />
+            {section.caption && <figcaption>{section.caption}</figcaption>}
+          </figure>
+        );
+
+        if (section.type === 'gallery') return (
+          <div class="content-block">
+            <ImageGallery images={section.images} />
+          </div>
+        );
+
+        if (section.type === 'video') return (
+          <div class="content-block">
+            <VideoEmbed url={section.url} caption={section.caption} />
+          </div>
+        );
+
+        if (section.type === 'callout') return (
+          <div class="callout reveal" style={`transition-delay:${i * 40}ms;--c:${project.color}`}>
+            <span class="callout-icon">{section.icon}</span>
+            <p>{section.content}</p>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- ── RELATED PROJECTS ── -->
+    {related.length > 0 && (
+      <div class="related">
+        <h3 class="related-title reveal">Other projects</h3>
+        <div class="related-grid">
+          {related.map((rp, i) => (
+            <a href={`/projects/${rp.slug}`} class="related-card tilt reveal scale" style={`--c:${rp.color};transition-delay:${i * 80}ms`}>
+              <span class="rc-dot" style={`background:${rp.color}`}></span>
+              <h4>{rp.title}</h4>
+              <p class="muted">{rp.description}</p>
+              <div class="rc-tags">
+                {rp.tags.slice(0, 3).map((t) => <span class="tag small">{t}</span>)}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+</Layout>
+
+<style>
+  /* ── HERO ── */
+  .detail-hero {
+    position: relative; max-width: 1140px; margin: 0 auto;
+    padding: 80px 32px 60px;
+    display: grid; grid-template-columns: 1fr 260px; gap: 50px; align-items: start;
+  }
+  .hero-inner { display: flex; flex-direction: column; gap: 22px; }
+  .hero-meta  { display: flex; align-items: center; gap: 14px; }
+  .back-link  { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--muted); transition: color .2s; }
+  .back-link:hover { color: var(--orange-2); }
+
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .status-dot  { width: 6px; height: 6px; border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+
+  .detail-hero h1 { font-size: 50px; font-weight: 800; line-height: 1.08; }
+  .tagline { font-size: 18px; max-width: 560px; line-height: 1.55; }
+
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 5px 12px; border-radius: 7px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); }
+  .tag.small { font-size: 11px; padding: 3px 9px; }
+
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* sidebar */
+  .hero-facts { display: flex; flex-direction: column; gap: 22px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 18px; padding: 26px; margin-top: 60px; }
+  .fact { display: flex; flex-direction: column; gap: 6px; }
+  .fact-label { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .fact-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* progress bar */
+  .progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 100; background: var(--c); width: 0%; transition: width .1s linear; }
+
+  /* ── CONTENT ── */
+  .content-wrap { max-width: 1140px; margin: 0 auto; padding: 10px 32px 100px; }
+  .content-body { max-width: 760px; display: flex; flex-direction: column; gap: 30px; }
+  .content-block { max-width: 760px; }
+
+  .prose-text { font-size: 17px; line-height: 1.85; color: var(--muted); }
+  .prose-text strong { color: var(--text); }
+
+  .prose-h2 { font-size: 26px; font-weight: 800; line-height: 1.2; padding-top: 14px; }
+  .h2-hash { color: var(--orange); font-family: 'JetBrains Mono', monospace; font-size: 0.7em; font-weight: 600; margin-right: 4px; }
+
+  .prose-figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .prose-figure img { width: 100%; max-width: 760px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 24px 60px rgba(0,0,0,0.45); display: block; }
+  .prose-figure figcaption { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-align: center; line-height: 1.5; }
+
+  .callout { display: flex; align-items: flex-start; gap: 16px; background: color-mix(in srgb, var(--c) 8%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); border-radius: 14px; padding: 20px 22px; }
+  .callout-icon { font-size: 22px; flex-shrink: 0; line-height: 1.5; }
+  .callout p { font-size: 15.5px; line-height: 1.7; color: var(--muted); }
+
+  /* ── RELATED ── */
+  .related { margin-top: 70px; padding-top: 50px; border-top: 1px solid var(--border); }
+  .related-title { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+  .related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .related-card { background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px; transition: border-color .25s, box-shadow .25s; }
+  .related-card:hover { border-color: color-mix(in srgb, var(--c) 60%, transparent); box-shadow: 0 18px 46px -8px color-mix(in srgb, var(--c) 22%, transparent); }
+  .rc-dot { width: 10px; height: 10px; border-radius: 4px; box-shadow: 0 0 12px currentColor; }
+  .related-card h4 { font-size: 18px; font-weight: 700; }
+  .related-card p { font-size: 14px; line-height: 1.6; }
+  .rc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+
+  @media (max-width: 900px) {
+    .detail-hero { grid-template-columns: 1fr; }
+    .hero-facts { margin-top: 0; }
+    .related-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .detail-hero h1 { font-size: 34px; }
+  }
+</style>
+
+<script>
+  // scroll progress bar
+  const bar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    if (!bar) return;
+    const total = document.body.scrollHeight - window.innerHeight;
+    bar.style.width = `${(window.scrollY / total) * 100}%`;
+  }, { passive: true });
+</script>

@@ -1,6 +1,6 @@
 ---
 interface Props {
-  active?: 'posts' | 'about';
+  active?: 'posts' | 'about' | 'projects';
 }
 const { active } = Astro.props;
 ---
@@ -15,9 +15,9 @@ const { active } = Astro.props;
       BenKi<span class="dot">.dev</span>
     </a>
     <nav class="nav-links">
-      <a href="/blog" class={active === 'posts' ? 'active' : ''}>Posts</a>
-      <a href="/projects">Projects</a>
-      <a href="/about" class={active === 'about' ? 'active' : ''}>About</a>
+      <a href="/blog"     class={active === 'posts'    ? 'active' : ''}>Posts</a>
+      <a href="/projects" class={active === 'projects' ? 'active' : ''}>Projects</a>
+      <a href="/about"    class={active === 'about'    ? 'active' : ''}>About</a>
     </nav>
     <a class="nav-cta" href="/blog">$ explore_blog</a>
   </div>

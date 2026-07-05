@@ -1,0 +1,134 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Terminal from '../../components/Terminal.astro';
+import { projects, statusConfig } from '../../data/projects';
+---
+<Layout title="Projects" active="projects">
+  <!-- ── Hero ── -->
+  <section class="dark hero">
+    <div class="blob" style="width:360px;height:360px;top:-110px;left:-100px;background:var(--orange);"></div>
+    <div class="blob" style="width:300px;height:300px;top:0;right:-80px;background:var(--purple);animation-delay:-5s;"></div>
+    <div class="eyebrow">Projects</div>
+    <h1 class="reveal in">
+      Things I've actually <span class="gradient-text">shipped</span><br />
+      (and a few I'm still breaking).
+    </h1>
+    <p class="lede reveal in muted">
+      Side projects, weekend experiments, and tools I built because something annoyed me.
+      Source is public where I'm not embarrassed by it yet.
+    </p>
+
+    <Terminal title="ls ~/projects" class="hero-terminal reveal in">
+      <div class="line">
+        <span class="terminal-prompt">benki@dev</span>
+        <span class="terminal-path"> ~/projects</span>
+        <span> $ ls -la</span>
+      </div>
+      <div class="line">&nbsp;</div>
+      {projects.map((p) => (
+        <div class="line">
+          <span style={`color:${p.color};min-width:130px;display:inline-block`}>
+            {p.title.toLowerCase().replace(/ /g, '-')}/
+          </span>
+          <span class="terminal-comment">  # {p.description}</span>
+        </div>
+      ))}
+    </Terminal>
+  </section>
+
+  <!-- ── Filter bar ── -->
+  <div class="dark filter-bar reveal in">
+    <button class="filter-pill active" data-filter="all"><span class="dot" style="background:#F5F3FA"></span> All</button>
+    <button class="filter-pill" data-filter="live"     style="--c:var(--lime)">  <span class="dot" style="background:var(--lime)"></span>   Live</button>
+    <button class="filter-pill" data-filter="wip"      style="--c:var(--yellow)"><span class="dot" style="background:var(--yellow)"></span> WIP</button>
+    <button class="filter-pill" data-filter="archived" style="--c:var(--muted)"> <span class="dot" style="background:var(--muted)"></span>  Archived</button>
+  </div>
+
+  <!-- ── Project cards ── -->
+  <section class="dark cards-section">
+    <div class="cards-grid" id="projectGrid">
+      {projects.map((p, i) => {
+        const sc = statusConfig[p.status];
+        return (
+          <a href={`/projects/${p.slug}`} class="proj-card tilt reveal scale" data-status={p.status} style={`--c:${p.color};transition-delay:${i * 70}ms`}>
+            <div class="card-bar" style={`background:${p.color}`}></div>
+            <div class="card-inner">
+              <div class="card-top">
+                <div class="card-icon" style={`background:color-mix(in srgb,${p.color} 18%,transparent);border-color:color-mix(in srgb,${p.color} 35%,transparent)`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={p.color} stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                  </svg>
+                </div>
+                <span class="status-pill" style={`color:${sc.color};border-color:color-mix(in srgb,${sc.color} 40%,transparent);background:color-mix(in srgb,${sc.color} 10%,transparent)`}>
+                  <span class="status-dot" style={`background:${sc.color}`}></span>
+                  {sc.label}
+                </span>
+              </div>
+
+              <h3>{p.title}</h3>
+              <p class="card-desc muted">{p.longDesc}</p>
+
+              <div class="tag-row">
+                {p.tags.map((t) => <span class="tag">{t}</span>)}
+              </div>
+
+              <div class="card-cta" style={`color:${p.color}`}>
+                Read more →
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { position: relative; max-width: 1140px; margin: 0 auto; padding: 90px 32px 56px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--orange-2); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 12px rgba(255,106,26,0.8); animation: blink 1.6s ease-in-out infinite; }
+  .hero h1 { font-size: 50px; font-weight: 800; line-height: 1.1; max-width: 700px; }
+  .lede { margin-top: 20px; font-size: 17px; max-width: 540px; line-height: 1.65; }
+  .hero-terminal { margin-top: 40px; max-width: 680px; }
+
+  .filter-bar { max-width: 1140px; margin: 0 auto; padding: 0 32px 48px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .filter-pill { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color .2s, color .2s, transform .2s, box-shadow .2s; background: transparent; }
+  .filter-pill:hover { transform: translateY(-2px); }
+  .filter-pill.active { border-color: var(--c, var(--text)); color: var(--text); box-shadow: 0 0 0 1px var(--c, var(--text)) inset, 0 8px 20px color-mix(in srgb, var(--c, #fff) 25%, transparent); }
+  .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  .cards-section { max-width: 1140px; margin: 0 auto; padding: 0 32px 110px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+
+  .proj-card { background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color .3s ease, box-shadow .3s ease; display: block; }
+  .proj-card:hover { border-color: color-mix(in srgb, var(--c) 60%, transparent); box-shadow: 0 28px 60px -10px color-mix(in srgb, var(--c) 22%, transparent); }
+  .card-bar { height: 4px; width: 100%; }
+  .card-inner { padding: 26px; display: flex; flex-direction: column; gap: 16px; }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-icon { width: 44px; height: 44px; border-radius: 12px; border: 1px solid; display: flex; align-items: center; justify-content: center; }
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+  .proj-card h3 { font-size: 22px; font-weight: 800; line-height: 1.2; }
+  .card-desc { font-size: 14.5px; line-height: 1.7; }
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; padding: 4px 11px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); }
+  .card-cta { font-size: 13.5px; font-weight: 700; margin-top: 4px; transition: gap .2s; }
+
+  @media (max-width: 860px) { .cards-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .hero h1 { font-size: 32px; } }
+</style>
+
+<script>
+  const pills = document.querySelectorAll('.filter-pill');
+  const cards = document.querySelectorAll<HTMLElement>('#projectGrid .proj-card');
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      pills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+      const filter = (pill as HTMLElement).dataset.filter;
+      cards.forEach((card) => {
+        card.style.display = filter === 'all' || card.dataset.status === filter ? '' : 'none';
+      });
+    });
+  });
+</script>

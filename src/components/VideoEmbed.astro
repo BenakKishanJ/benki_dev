@@ -1,0 +1,66 @@
+---
+interface Props {
+  url: string;       // YouTube embed URL, e.g. https://www.youtube.com/embed/VIDEO_ID
+  caption?: string;
+}
+const { url, caption } = Astro.props;
+
+// Extract a thumbnail from the YouTube embed URL
+const ytMatch = url.match(/embed\/([A-Za-z0-9_-]+)/);
+const videoId = ytMatch?.[1] ?? '';
+const thumb   = videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+---
+
+<figure class="video-embed reveal scale">
+  <div class="video-wrap" data-url={url} data-thumb={thumb}>
+    {thumb && (
+      <img class="video-thumb" src={thumb} alt="Video thumbnail" loading="lazy" />
+    )}
+    <div class="video-overlay">
+      <button class="play-btn magnetic" aria-label="Play video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5,3 19,12 5,21"/>
+        </svg>
+      </button>
+      <span class="play-label">Watch demo</span>
+    </div>
+    <iframe
+      class="video-iframe hidden"
+      src=""
+      data-src={url + '?autoplay=1&rel=0'}
+      title="Project demo video"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .video-embed { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .video-wrap { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: #0D0D14; aspect-ratio: 16/9; box-shadow: 0 30px 70px rgba(0,0,0,0.50); cursor: pointer; }
+  .video-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease, filter .3s ease; filter: brightness(0.7); }
+  .video-wrap:hover .video-thumb { transform: scale(1.03); filter: brightness(0.55); }
+  .video-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 2; }
+  .play-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--grad-main); color: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; box-shadow: 0 12px 36px rgba(255,106,26,0.45); transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease; }
+  .play-btn:hover { transform: scale(1.12); box-shadow: 0 18px 48px rgba(155,92,246,0.55); }
+  .play-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.75); letter-spacing: 0.06em; text-transform: uppercase; }
+  .video-iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  .video-iframe.hidden { display: none; }
+  figcaption { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-align: center; line-height: 1.5; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.video-wrap').forEach((wrap) => {
+    wrap.addEventListener('click', () => {
+      const iframe = wrap.querySelector<HTMLIFrameElement>('.video-iframe');
+      const overlay = wrap.querySelector<HTMLElement>('.video-overlay');
+      const thumb = wrap.querySelector<HTMLElement>('.video-thumb');
+      if (!iframe) return;
+      iframe.src = iframe.dataset.src ?? '';
+      iframe.classList.remove('hidden');
+      if (overlay) overlay.style.display = 'none';
+      if (thumb)   thumb.style.display   = 'none';
+    }, { once: true });
+  });
+</script>
