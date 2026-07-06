@@ -8,9 +8,10 @@ interface Props {
 const { code, lang = 'bash', filename, class: className = '' } = Astro.props;
 
 // Simple token colouring — no external dep.
-// For real syntax highlighting add shiki: `npm install shiki`
-// and swap highlightCode() below with shiki's codeToHtml().
 function highlightCode(src: string, language: string): string {
+  // FIX 1: Convert non-breaking spaces to standard spaces to fix indentation/line-height bugs
+  src = src.replace(/\u00A0/g, ' ');
+
   const esc = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -72,7 +73,6 @@ function highlightCode(src: string, language: string): string {
     }
   })();
 
-  // Tokenise via placeholder substitution to avoid regex overlap
   const tokens: string[] = [];
   let processed = esc(src);
 
@@ -80,12 +80,13 @@ function highlightCode(src: string, language: string): string {
     processed = processed.replace(rx, (m) => {
       const idx = tokens.length;
       tokens.push(`<span class="${cls}">${m}</span>`);
-      return `\x00${idx}\x00`;
+      // FIX 2: Use underscores so the \b (word boundary) regexes ignore the ID numbers
+      return `___TOKEN_${idx}___`;
     });
   });
 
   // Restore tokens
-  processed = processed.replace(/\x00(\d+)\x00/g, (_, i) => tokens[Number(i)]);
+  processed = processed.replace(/___TOKEN_(\d+)___/g, (_, i) => tokens[Number(i)]);
   return processed;
 }
 

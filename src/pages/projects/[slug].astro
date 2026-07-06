@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
-import ImageGallery from '../../components/ImageGallery.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
 import Terminal from '../../components/Terminal.astro';
 import { projects, statusConfig, type Project, type Section } from '../../data/projects';
@@ -122,8 +121,12 @@ const related = projects.filter((p) => p.slug !== slug).slice(0, 2);
         );
 
         if (section.type === 'gallery') return (
-          <div class="content-block">
-            <ImageGallery images={section.images} />
+          <div class="gallery-row">
+            {section.images.map((img) => (
+              <figure class="prose-figure">
+                <img src={img.src} alt={img.alt} loading="lazy" />
+              </figure>
+            ))}
           </div>
         );
 
@@ -208,8 +211,11 @@ const related = projects.filter((p) => p.slug !== slug).slice(0, 2);
   .h2-hash { color: var(--orange); font-family: 'JetBrains Mono', monospace; font-size: 0.7em; font-weight: 600; margin-right: 4px; }
 
   .prose-figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
-  .prose-figure img { width: 100%; max-width: 760px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 24px 60px rgba(0,0,0,0.45); display: block; }
+  .prose-figure img { width: 100%; max-width: 760px; max-height: 500px; object-fit: contain; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 24px 60px rgba(0,0,0,0.45); display: block; background: #08080C; }
   .prose-figure figcaption { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-align: center; line-height: 1.5; }
+
+  .gallery-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .gallery-row .prose-figure { margin: 0; }
 
   .callout { display: flex; align-items: flex-start; gap: 16px; background: color-mix(in srgb, var(--c) 8%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); border-radius: 14px; padding: 20px 22px; }
   .callout-icon { font-size: 22px; flex-shrink: 0; line-height: 1.5; }
