@@ -14,11 +14,34 @@ const { active } = Astro.props;
       </span>
       BenKi<span class="dot">.dev</span>
     </a>
-    <nav class="nav-links">
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+    <nav class="nav-links" id="navLinks">
       <a href="/blog"     class={active === 'posts'    ? 'active' : ''}>Posts</a>
       <a href="/projects" class={active === 'projects' ? 'active' : ''}>Projects</a>
       <a href="/about"    class={active === 'about'    ? 'active' : ''}>About</a>
+      <a class="nav-cta-mobile" href="/blog">$ explore_blog</a>
     </nav>
     <a class="nav-cta" href="/blog">$ explore_blog</a>
   </div>
 </header>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      hamburger.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target as Node) && !hamburger.contains(e.target as Node)) {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+      }
+    });
+  }
+</script>
