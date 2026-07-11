@@ -1,5 +1,5 @@
 {
-  "name": "benki-dev",
+  "name": "benkicodes",
   "type": "module",
   "version": "1.0.0",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=benki-dev"
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=benkicodes"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.0",
